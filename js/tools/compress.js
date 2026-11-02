@@ -22,7 +22,6 @@
     name: 'Compress PDF',
     category: 'optimize',
     icon: 'minimize',
-    isNew: true,
     description: 'Reduce file size — lossless or strong image compression.',
     longDescription: 'Make PDFs smaller for email and uploads. Choose lossless optimisation, or strong compression that converts pages to images.',
     keywords: ['reduce', 'shrink', 'smaller', 'optimize', 'size'],

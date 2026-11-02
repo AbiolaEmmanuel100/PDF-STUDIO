@@ -16,7 +16,6 @@
     name: 'Page numbers',
     category: 'edit',
     icon: 'hash',
-    isNew: true,
     description: 'Add “Page 1 of N” style numbers to your PDF.',
     longDescription: 'Insert page numbers in the header or footer, in the format and style you want. Skip a cover page or start from any number.',
     keywords: ['numbering', 'paginate', 'footer', 'header', 'bates'],

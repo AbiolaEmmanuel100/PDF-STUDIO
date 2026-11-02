@@ -14,7 +14,6 @@
     name: 'Edit metadata',
     category: 'edit',
     icon: 'tag',
-    isNew: true,
     description: 'Change title, author, keywords — or strip all metadata.',
     longDescription: 'Edit the document properties shown by PDF readers and search engines, or remove all hidden metadata before sharing.',
     keywords: ['properties', 'title', 'author', 'privacy', 'remove metadata', 'xmp'],

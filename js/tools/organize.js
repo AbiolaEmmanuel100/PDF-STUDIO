@@ -14,7 +14,6 @@
     name: 'Organize pages',
     category: 'organize',
     icon: 'layout',
-    isNew: true,
     description: 'Reorder, rotate, duplicate, delete and insert pages visually.',
     longDescription: 'Drag pages to reorder them, rotate or delete individual pages, duplicate or insert blank pages, and pull in pages from other PDFs.',
     keywords: ['reorder', 'sort', 'delete pages', 'remove pages', 'insert', 'arrange', 'rearrange'],

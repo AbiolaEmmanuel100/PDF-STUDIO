@@ -155,7 +155,6 @@
     name: 'Sign & annotate',
     category: 'edit',
     icon: 'pen',
-    isNew: true,
     description: 'Add your signature, text, dates and images anywhere.',
     longDescription: 'Sign documents and fill them in: draw, type or upload a signature, add text, dates and images, then drag them into place.',
     keywords: ['signature', 'esign', 'fill', 'annotate', 'text box', 'add text', 'date', 'initials', 'image'],

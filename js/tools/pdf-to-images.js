@@ -13,7 +13,6 @@
     name: 'PDF to images',
     category: 'convert',
     icon: 'file-image',
-    isNew: true,
     description: 'Save pages as high-quality PNG or JPG images.',
     longDescription: 'Export every page — or just the ones you select — as PNG or JPG images at the resolution you need.',
     keywords: ['pdf to jpg', 'pdf to png', 'export images', 'render', 'convert'],

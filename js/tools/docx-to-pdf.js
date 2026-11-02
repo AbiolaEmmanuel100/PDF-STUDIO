@@ -11,26 +11,8 @@
   const { h, icon, baseName, isDocx, loadScript, formatBytes } = PS.util;
   const ui = PS.ui;
 
-  const PAGE = { a4: { w: 595.28, h: 841.89, css: 'A4' }, letter: { w: 612, h: 792, css: 'letter' } };
-
   function loadLibs() {
-    return Promise.all([
-      loadScript('vendor/mammoth.browser.min.js', 'mammoth'),
-      loadScript('vendor/jspdf.umd.min.js', 'jspdf'),
-      loadScript('vendor/html2canvas.min.js', 'html2canvas'),
-    ]);
-  }
-
-  /** Strip anything executable from converted HTML (defence in depth; CSP also blocks it). */
-  function sanitize(container) {
-    container.querySelectorAll('script, iframe, object, embed, link, meta, style').forEach((n) => n.remove());
-    container.querySelectorAll('*').forEach((el) => {
-      for (const attr of Array.from(el.attributes)) {
-        if (/^on/i.test(attr.name)) el.removeAttribute(attr.name);
-        if ((attr.name === 'href' || attr.name === 'src') && /^\s*javascript:/i.test(attr.value)) el.removeAttribute(attr.name);
-      }
-    });
-    container.querySelectorAll('a[href]').forEach((a) => { a.target = '_blank'; a.rel = 'noopener noreferrer'; });
+    return Promise.all([loadScript('vendor/mammoth.browser.min.js', 'mammoth'), PS.htmlpdf.loadLibs()]);
   }
 
   PS.tools.register({
@@ -63,11 +45,11 @@
         }, 'docx');
         if (!res) return;
         fileName = baseName(file.name);
-        const tmp = document.createElement('div');
-        tmp.innerHTML = res.value || '';
-        sanitize(tmp);
-        html = tmp.innerHTML;
-        if (!tmp.textContent.trim() && !tmp.querySelector('img')) ui.toast('The document appears to be empty.', 'warning');
+        html = PS.htmlpdf.clean(res.value || '');
+        const tmp = document.createElement('template');
+        tmp.innerHTML = html;
+        const textCheck = tmp.content;
+        if (!textCheck.textContent.trim() && !textCheck.querySelector('img')) ui.toast('The document appears to be empty.', 'warning');
         buildEditor(file, res.messages || []);
       }
 
@@ -99,43 +81,11 @@
       }
 
       async function exportPdf(size, margin, result) {
-        const page = PAGE[size];
-        const contentW = page.w - margin * 2;
-        const windowWidth = 720; // CSS px the document is laid out at before scaling to the page
-        const blob = await ui.run('Creating PDF…', async () => {
-          await libs;
-          const { jsPDF } = global.jspdf;
-          const doc = new jsPDF({ unit: 'pt', format: size, compress: true });
-          // Dedicated render node: no scroll clipping, fixed layout width.
-          const node = h('div', { html, style: { width: windowWidth + 'px', background: '#fff', color: '#111', fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '16px', lineHeight: '1.55' } });
-          node.querySelectorAll('img').forEach((img) => { img.style.maxWidth = '100%'; img.style.height = 'auto'; });
-          node.querySelectorAll('table').forEach((t) => { t.style.borderCollapse = 'collapse'; t.style.width = '100%'; });
-          node.querySelectorAll('td, th').forEach((c) => { c.style.border = '1px solid #999'; c.style.padding = '4px 6px'; });
-          node.querySelectorAll('p').forEach((p) => { p.style.margin = '0 0 10px'; });
-          await doc.html(node, {
-            x: margin, y: margin, width: contentW, windowWidth,
-            margin: [margin, margin, margin, margin],
-            autoPaging: 'text',
-            html2canvas: { scale: 1, logging: false, useCORS: false, backgroundColor: '#ffffff' },
-          });
-          doc.setProperties({ title: fileName, creator: 'PDF Studio' });
-          return doc.output('blob');
-        }, 'docx-export');
+        const blob = await ui.run('Creating PDF…', async () => { await libs; return PS.htmlpdf.exportPdf(html, { size, margin, title: fileName }); }, 'docx-export');
         if (blob) ui.showResult(result, { blob, filename: fileName + '.pdf', detail: 'Converted from Word' });
       }
 
-      function printPdf(size, margin) {
-        const rootEl = document.getElementById('print-root');
-        rootEl.replaceChildren(
-          h('style', null, `@page { size: ${PAGE[size].css}; margin: ${margin}pt; }`),
-          h('article', { class: 'doc-paper', html }));
-        document.body.classList.add('print-doc');
-        const done = () => { document.body.classList.remove('print-doc'); rootEl.replaceChildren(); global.removeEventListener('afterprint', done); };
-        global.addEventListener('afterprint', done);
-        const prevTitle = document.title;
-        document.title = fileName; // becomes the default PDF file name
-        try { global.print(); } finally { document.title = prevTitle; }
-      }
+      function printPdf(size, margin) { PS.htmlpdf.print(html, { size, margin, title: fileName }); }
 
       showDrop();
       return { destroy() { html = ''; } };
