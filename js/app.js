@@ -12,6 +12,7 @@
     { id: 'organize', name: 'Organize', color: 'var(--c-organize)' },
     { id: 'convert', name: 'Convert', color: 'var(--c-convert)' },
     { id: 'edit', name: 'Edit & sign', color: 'var(--c-edit)' },
+    { id: 'review', name: 'Review & protect', color: 'var(--c-review)' },
     { id: 'optimize', name: 'Optimize', color: 'var(--c-optimize)' },
     { id: 'inspect', name: 'Inspect', color: 'var(--c-inspect)' },
   ];
@@ -49,7 +50,7 @@
           h('div', { role: 'group', 'aria-labelledby': 'nav-' + cat.id },
             tools.map((t) => h('a', { class: 'nav-link', href: '#/' + t.id, dataset: { tool: t.id } },
               h('span', { style: { color: cat.color, display: 'contents' } }, icon(t.icon)), t.name))));
-      }));
+      }).filter(Boolean));
   }
 
   function markActive(id) {
@@ -88,7 +89,7 @@
     main.replaceChildren(
       h('section', { class: 'hero' },
         h('h1', { id: 'page-title', tabindex: '-1' }, 'Every PDF tool you need — private by design.'),
-        h('p', null, 'Merge, split, convert, compress, sign and edit PDFs right in your browser. Nothing is uploaded: your files are processed on this device and never leave it.'),
+        h('p', null, 'Edit, comment, fill, sign, redact, OCR, compare, protect and convert PDFs right in your browser. Nothing is uploaded: your files are processed on this device and never leave it.'),
         h('div', { class: 'hero-points' },
           h('span', null, icon('shield'), 'No uploads, no tracking'),
           h('span', null, icon('wifi-off'), 'Works offline'),

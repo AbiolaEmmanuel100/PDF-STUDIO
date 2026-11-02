@@ -62,10 +62,11 @@
   }
 
   /** Open a pdf.js document from bytes. A copy is passed because pdf.js transfers (detaches) the buffer. */
-  async function openPdfJs(bytes) {
+  async function openPdfJs(bytes, password) {
     await ensurePdfJs();
     const task = global.pdfjsLib.getDocument({
       data: new Uint8Array(bytes).slice(),
+      password: password || undefined,
       isEvalSupported: false, // keep a strict CSP possible
       verbosity: 0,           // errors only
     });
@@ -77,12 +78,13 @@
    *  { id, file, name, size, bytes, pageCount, encrypted, pdfjs, destroy() }
    * `bytes` is kept so pdf-lib can create fresh documents for each operation.
    */
-  async function openFile(file) {
+  async function openFile(file, { password } = {}) {
     if (!isPdf(file)) throw new Error(`"${file.name}" is not a PDF.`);
     const bytes = await readAsArrayBuffer(file);
     if (!hasPdfHeader(bytes)) throw Object.assign(new Error(`"${file.name}" is not a valid PDF.`), { name: 'InvalidPDFException' });
-    const pdfjs = await openPdfJs(bytes);
+    const pdfjs = await openPdfJs(bytes, password);
     const handle = {
+      password: password || null,
       id: PS.util.uid('pdf'),
       file,
       name: file.name,

@@ -285,5 +285,46 @@
     return h('div', { class: 'empty' }, icon(iconName || 'file'), h('p', null, text));
   }
 
-  PS.ui = { toast, reportError, busy, run, dropzone, modal, resultCard, showResult, field, select, segmented, range, positionGrid, note, emptyState };
+  /** Ask for a line/paragraph of text in a modal. Resolves to the string, or null if cancelled. */
+  function prompt({ title, label, value = '', multiline = false, okLabel = 'OK', placeholder = '', extra = null, type = 'text' }) {
+    return new Promise((resolve) => {
+      const input = multiline
+        ? h('textarea', { rows: 5, placeholder, style: { width: '100%' } })
+        : h('input', { type, placeholder, autocomplete: type === 'password' ? 'off' : null });
+      input.value = value;
+      let done = false;
+      const finish = (v) => { if (!done) { done = true; resolve(v); } };
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && (!multiline || e.ctrlKey || e.metaKey)) { e.preventDefault(); ok(); }
+      });
+      let closeFn = null;
+      function ok() { finish(input.value); if (closeFn) closeFn(); }
+      const m = modal({
+        title,
+        body: h('div', null, field(label, input, multiline ? 'Ctrl + Enter to confirm' : null), extra),
+        actions: [{ label: 'Cancel' }, { label: okLabel, primary: true, onClick: () => { finish(input.value); } }],
+        onClose: () => finish(null),
+      });
+      closeFn = m && m.close;
+    });
+  }
+
+  /** Row of colour swatches. Returns { el, value, onChange(fn) }. */
+  function swatches(colors, value, ariaLabel = 'Colour') {
+    let cur = value || colors[0][0];
+    const fns = [];
+    const el = h('div', { class: 'swatches', role: 'group', 'aria-label': ariaLabel });
+    colors.forEach(([hex, name]) => {
+      const b = h('button', { class: 'swatch', type: 'button', title: name, 'aria-label': name, 'aria-pressed': String(hex === cur), style: { background: hex } });
+      b.addEventListener('click', () => {
+        cur = hex;
+        el.querySelectorAll('.swatch').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        fns.forEach((fn) => fn(cur));
+      });
+      el.append(b);
+    });
+    return { el, get value() { return cur; }, onChange(fn) { fns.push(fn); } };
+  }
+
+  PS.ui = { toast, reportError, busy, run, dropzone, modal, resultCard, showResult, field, select, segmented, range, positionGrid, note, emptyState, prompt, swatches };
 })(window);

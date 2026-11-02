@@ -33,11 +33,35 @@
           h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Close file', title: 'Close file', onclick: onClear }, icon('x')))));
   }
 
-  /** Open a PDF with the busy overlay and friendly errors; resolves to a handle or null. */
+  /**
+   * Open a PDF with the busy overlay and friendly errors; resolves to a handle or null.
+   * Password-protected files prompt for their password (it never leaves the page).
+   */
   async function openPdf(file) {
-    const handle = await ui.run(`Opening ${file.name}…`, () => PS.engine.openFile(file), 'open');
-    if (handle && handle.encrypted) ui.toast('This PDF is encrypted. Viewing works, but tools that modify it may fail until the password protection is removed.', 'warning', { timeout: 9000 });
-    return handle || null;
+    let password;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      ui.busy.start(`Opening ${file.name}…`);
+      try {
+        const handle = await PS.engine.openFile(file, { password });
+        ui.busy.end();
+        if (handle.encrypted) ui.toast(password ? 'Opened with password. Tools that change the file need the protection removed first (Unlock PDF).' : 'This PDF is encrypted. Viewing works, but tools that modify it may fail until the protection is removed (Unlock PDF).', 'warning', { timeout: 9000 });
+        return handle;
+      } catch (err) {
+        ui.busy.end();
+        if (err && err.name === 'PasswordException') {
+          password = await ui.prompt({
+            title: 'Password required', type: 'password', okLabel: 'Open',
+            label: attempt ? 'Incorrect password — try again' : `“${file.name}” is password-protected. Enter its password to open it.`,
+          });
+          if (password == null) return null;
+          continue;
+        }
+        ui.reportError(err, 'open');
+        return null;
+      }
+    }
+    ui.toast('Too many incorrect passwords.', 'error');
+    return null;
   }
 
   /**

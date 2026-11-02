@@ -163,7 +163,7 @@
     if (!err) return 'Something went wrong.';
     const name = err.name || '';
     const msg = String(err.message || err);
-    if (name === 'EncryptedPDFError' || /encrypt/i.test(msg)) return 'This PDF is password-protected/encrypted. Remove the password first, then try again.';
+    if (name === 'EncryptedPDFError' || /encrypt/i.test(msg)) return 'This PDF is password-protected/encrypted. Remove the protection first with the “Unlock PDF” tool, then try again.';
     if (name === 'PasswordException') return 'This PDF requires a password to open.';
     if (name === 'InvalidPDFException' || /Invalid PDF|Failed to parse|No PDF header/i.test(msg)) return 'This file is not a valid PDF or is damaged.';
     if (/out of memory|allocation|RangeError/i.test(msg)) return 'Your browser ran out of memory. Try a smaller file or a lower quality setting.';
