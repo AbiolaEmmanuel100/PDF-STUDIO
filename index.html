@@ -1,919 +1,136 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PDF Studio — Local Acrobat Alternative</title>
-<style>
-:root {
-  --bg: #0f1419;
-  --surface: #1a2332;
-  --surface2: #243044;
-  --border: #2d3a4f;
-  --text: #e8eef6;
-  --text-dim: #8b9bb4;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
-  --success: #10b981;
-  --danger: #ef4444;
-  --radius: 12px;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  line-height: 1.5;
-}
-header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 1rem 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-header h1 { font-size: 1.4rem; font-weight: 700; }
-header span { color: var(--text-dim); font-size: 0.85rem; }
-.container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
-.tabs {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-}
-.tab {
-  padding: 0.6rem 1.2rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.15s;
-}
-.tab:hover { background: var(--surface2); }
-.tab.active { background: var(--accent); border-color: var(--accent); color: white; }
-.panel { display: none; }
-.panel.active { display: block; }
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-}
-.card h2 { margin-bottom: 0.75rem; font-size: 1.15rem; }
-.dropzone {
-  position: relative;
-  border: 2px dashed var(--border);
-  border-radius: var(--radius);
-  padding: 2rem;
-  text-align: center;
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
-  margin-bottom: 1rem;
-  overflow: hidden;
-}
-.dropzone:hover, .dropzone.dragover { border-color: var(--accent); background: rgba(59,130,246,0.08); }
-.dropzone input[type="file"] {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-  font-size: 100px;
-}
-.btn {
-  background: var(--accent);
-  color: white;
-  border: none;
-  padding: 0.65rem 1.4rem;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.15s;
-}
-.btn:hover { background: var(--accent-hover); }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-secondary { background: var(--surface2); }
-.btn-success { background: var(--success); }
-.btn-danger { background: var(--danger); }
-.file-list { margin: 1rem 0; }
-.file-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--surface2);
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  margin-bottom: 0.4rem;
-  font-size: 0.9rem;
-}
-.file-item button { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 1.1rem; padding: 0 0.3rem; }
-.controls { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin: 1rem 0; }
-input[type="text"], input[type="number"], select, textarea {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-}
-textarea { width: 100%; min-height: 120px; resize: vertical; }
-.status { margin-top: 1rem; padding: 0.75rem; border-radius: 8px; font-size: 0.9rem; }
-.status.info { background: rgba(59,130,246,0.15); color: #93c5fd; }
-.status.success { background: rgba(16,185,129,0.15); color: #6ee7b7; }
-.status.error { background: rgba(239,68,68,0.15); color: #fca5a5; }
-.preview-area {
-  margin-top: 1rem;
-  background: #111;
-  border-radius: var(--radius);
-  min-height: 180px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: auto;
-  max-height: 420px;
-  position: relative;
-}
-.preview-area canvas { max-width: 100%; height: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
-.footer {
-  text-align: center;
-  padding: 2rem;
-  color: var(--text-dim);
-  font-size: 0.8rem;
-  border-top: 1px solid var(--border);
-  margin-top: 2rem;
-}
-@media (max-width: 600px) {
-  .controls { flex-direction: column; align-items: stretch; }
-  .tab { font-size: 0.8rem; padding: 0.5rem 0.8rem; }
-}
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Privacy guarantee enforced by the browser: no network connections to other origins. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data: blob:; connect-src 'self' data: blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>PDF Studio — private, offline PDF editor &amp; converter</title>
+<meta name="description" content="Merge, split, organize, convert, compress, watermark, number and sign PDFs entirely in your browser. No uploads, works offline.">
+<meta name="theme-color" content="#f5f7fb">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/app.css">
+<script src="js/theme-init.js"></script>
 </head>
 <body>
-<header>
-  <h1>PDF Studio</h1>
-  <span>100% local • runs in your browser • no uploads • Adobe Acrobat alternative</span>
-</header>
-<div class="container">
-  <div class="tabs">
-    <div class="tab active" data-tab="merge">Merge</div>
-    <div class="tab" data-tab="split">Split / Extract</div>
-    <div class="tab" data-tab="rotate">Rotate</div>
-    <div class="tab" data-tab="images">Images → PDF</div>
-    <div class="tab" data-tab="docx">DOCX → PDF</div>
-    <div class="tab" data-tab="text">Create from Text</div>
-    <div class="tab" data-tab="edit">Add Text / Stamp</div>
-    <div class="tab" data-tab="info">Info & Extract</div>
-  </div>
+<a class="skip-link" href="#main">Skip to content</a>
 
-  <!-- MERGE -->
-  <div class="panel active" id="panel-merge">
-    <div class="card">
-      <h2>Merge PDFs</h2>
-      <div class="dropzone" id="merge-drop">
-        <input type="file" id="merge-files" multiple accept=".pdf,application/pdf">
-        <p>Drop PDF files here or click to select multiple PDFs</p>
-        <p style="color:var(--text-dim);font-size:0.85rem;margin-top:0.5rem">Files are processed entirely in your browser</p>
-      </div>
-      <div class="file-list" id="merge-list"></div>
-      <div class="controls">
-        <button class="btn" id="merge-btn" disabled>Merge Selected PDFs</button>
-        <button class="btn btn-secondary" id="merge-clear">Clear</button>
-      </div>
-      <div id="merge-status"></div>
-    </div>
-  </div>
+<!-- Icon sprite (stroke icons, 24×24 grid) -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-logo" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 14l2 2 4-4"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol id="i-wifi-off" viewBox="0 0 24 24"><path d="M2 2l20 20"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M5 12.9a10 10 0 0 1 5.2-2.7"/><path d="M19 12.9a10 10 0 0 0-2.3-1.6"/><path d="M2 8.8a15 15 0 0 1 4.2-2.6"/><path d="M22 8.8A15 15 0 0 0 11 5"/><path d="M12 20h.01"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4"/><path d="M7 9l5-5 5 5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></symbol>
+  <symbol id="i-file-text" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6M9 9h1"/></symbol>
+  <symbol id="i-file-word" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M8 12l1.5 6 2.5-5 2.5 5L16 12"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9L2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.9-3"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.9 3"/><path d="M20 20v-4h-4"/></symbol>
+  <symbol id="i-rotate-cw" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></symbol>
+  <symbol id="i-rotate-ccw" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7"/><path d="M4 4v5h5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12"/><path d="M9 7V4h6v3"/></symbol>
+  <symbol id="i-grip" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
+  <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-merge" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/><path d="M3 17.5l9 4.5 9-4.5" opacity=".6"/></symbol>
+  <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.1 15.9M14.5 14.5L20 20M8.1 8.1L12 12"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="10" rx="1.5"/><rect x="13" y="3" width="8" height="6" rx="1.5"/><rect x="13" y="11" width="8" height="10" rx="1.5"/><rect x="3" y="15" width="8" height="6" rx="1.5"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></symbol>
+  <symbol id="i-images" viewBox="0 0 24 24"><rect x="7" y="3" width="14" height="14" rx="2"/><path d="M3 7v12a2 2 0 0 0 2 2h12"/><circle cx="12" cy="8" r="1.5"/><path d="M21 13l-4-4-7 7"/></symbol>
+  <symbol id="i-file-image" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><circle cx="10" cy="12" r="1.5"/><path d="M19 17l-3-3-6 6"/></symbol>
+  <symbol id="i-type" viewBox="0 0 24 24"><path d="M4 7V5h16v2"/><path d="M12 5v14M9 19h6"/></symbol>
+  <symbol id="i-droplet" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></symbol>
+  <symbol id="i-hash" viewBox="0 0 24 24"><path d="M5 9h14M5 15h14M10 4L8 20M16 4l-2 16"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M15.5 4.5l4 4L8 20H4v-4z"/><path d="M13.5 6.5l4 4"/><path d="M14 20h7" opacity=".6"/></symbol>
+  <symbol id="i-minimize" viewBox="0 0 24 24"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="8" cy="8" r="1.5"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></symbol>
+  <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 10h6M9 14h6"/></symbol>
+  <symbol id="i-select" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12l3 3 5-6"/></symbol>
+  <symbol id="i-square" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></symbol>
+  <symbol id="i-file-plus" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 11v6M9 14h6"/></symbol>
+  <symbol id="i-signature" viewBox="0 0 24 24"><path d="M3 17c3-1 4-9 6-9s-1 9 1 9 3-5 4-5 1 4 3 4 2-1 4-1"/><path d="M3 21h18" opacity=".6"/></symbol>
+</svg>
 
-  <!-- SPLIT -->
-  <div class="panel" id="panel-split">
-    <div class="card">
-      <h2>Split or Extract Pages</h2>
-      <div class="dropzone" id="split-drop">
-        <input type="file" id="split-file" accept=".pdf,application/pdf">
-        <p>Drop a PDF here or click to select</p>
-      </div>
-      <div id="split-info" style="margin:1rem 0;color:var(--text-dim)"></div>
-      <div class="preview-area" id="split-preview"></div>
-      <div class="controls">
-        <label>Page ranges (e.g. 1-3,5,7-9):</label>
-        <input type="text" id="split-ranges" placeholder="1-3,5,8-10" style="min-width:200px">
-        <button class="btn" id="split-btn" disabled>Extract Pages</button>
-      </div>
-      <div id="split-status"></div>
-    </div>
-  </div>
+<div id="app" class="app">
+  <header class="app-header">
+    <button id="menu-btn" class="icon-btn menu-btn" type="button" aria-label="Open tool menu" aria-controls="sidebar" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg></button>
+    <a class="brand" href="#/" aria-label="PDF Studio home">
+      <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-logo"/></svg></span>
+      <span>PDF Studio</span>
+    </a>
+    <span class="privacy-pill" title="All processing happens on your device"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-shield"/></svg><span>Local<span class="long"> · nothing uploaded</span></span></span>
+    <span class="header-spacer"></span>
+    <button id="theme-toggle" class="icon-btn" type="button" aria-label="Change theme"></button>
+  </header>
 
-  <!-- ROTATE -->
-  <div class="panel" id="panel-rotate">
-    <div class="card">
-      <h2>Rotate Pages</h2>
-      <div class="dropzone" id="rotate-drop">
-        <input type="file" id="rotate-file" accept=".pdf,application/pdf">
-        <p>Drop a PDF here or click to select</p>
-      </div>
-      <div id="rotate-info" style="margin:1rem 0;color:var(--text-dim)"></div>
-      <div class="preview-area" id="rotate-preview"></div>
-      <div class="controls">
-        <label>Pages (blank = all):</label>
-        <input type="text" id="rotate-pages" placeholder="1,3,5-7 or leave empty">
-        <select id="rotate-angle">
-          <option value="90">90° clockwise</option>
-          <option value="180">180°</option>
-          <option value="270">270° clockwise</option>
-        </select>
-        <button class="btn" id="rotate-btn" disabled>Rotate</button>
-      </div>
-      <div id="rotate-status"></div>
-    </div>
+  <div class="app-layout">
+    <nav id="sidebar" class="sidebar" aria-label="Tools"><div id="sidebar-nav"></div></nav>
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+    <main id="main" class="main" tabindex="-1">
+      <noscript><p>PDF Studio needs JavaScript to run. Everything happens locally in your browser.</p></noscript>
+    </main>
   </div>
-
-  <!-- IMAGES TO PDF -->
-  <div class="panel" id="panel-images">
-    <div class="card">
-      <h2>Convert Images to PDF</h2>
-      <div class="dropzone" id="images-drop">
-        <input type="file" id="images-files" multiple accept="image/*">
-        <p>Drop images (JPG, PNG, WebP...) or click to select</p>
-      </div>
-      <div class="file-list" id="images-list"></div>
-      <div class="controls">
-        <label>Page size:</label>
-        <select id="images-pagesize">
-          <option value="A4">A4</option>
-          <option value="Letter">Letter</option>
-          <option value="fit">Fit to image</option>
-        </select>
-        <button class="btn" id="images-btn" disabled>Create PDF</button>
-      </div>
-      <div id="images-status"></div>
-    </div>
-  </div>
-
-  <!-- DOCX -->
-  <div class="panel" id="panel-docx">
-    <div class="card">
-      <h2>Convert DOCX to PDF</h2>
-      <div class="dropzone" id="docx-drop">
-        <input type="file" id="docx-file" accept=".docx">
-        <p>Drop a .docx file here or click to select</p>
-      </div>
-      <div id="docx-preview" style="margin:1rem 0;max-height:300px;overflow:auto;background:white;color:black;padding:1rem;border-radius:8px;display:none"></div>
-      <div class="controls">
-        <button class="btn" id="docx-btn" disabled>Convert to PDF</button>
-      </div>
-      <div id="docx-status"></div>
-      <p style="color:var(--text-dim);font-size:0.85rem;margin-top:1rem">Note: Complex formatting may not be perfect. For best results with advanced documents, use LibreOffice locally.</p>
-    </div>
-  </div>
-
-  <!-- CREATE FROM TEXT -->
-  <div class="panel" id="panel-text">
-    <div class="card">
-      <h2>Create PDF from Text</h2>
-      <textarea id="text-content" placeholder="Type or paste your text here...&#10;&#10;You can use multiple paragraphs."></textarea>
-      <div class="controls">
-        <label>Title:</label>
-        <input type="text" id="text-title" placeholder="Document title" style="min-width:200px">
-        <button class="btn" id="text-btn">Create PDF</button>
-      </div>
-      <div id="text-status"></div>
-    </div>
-  </div>
-
-  <!-- EDIT / ADD TEXT -->
-  <div class="panel" id="panel-edit">
-    <div class="card">
-      <h2>Add Text Overlay (Stamp)</h2>
-      <div class="dropzone" id="edit-drop">
-        <input type="file" id="edit-file" accept=".pdf,application/pdf">
-        <p>Drop a PDF to stamp text onto</p>
-      </div>
-      <div id="edit-info" style="margin:1rem 0;color:var(--text-dim)"></div>
-      <div class="preview-area" id="edit-preview"></div>
-      <div class="controls">
-        <input type="text" id="edit-text" placeholder="Text to add (e.g. CONFIDENTIAL)" style="min-width:250px">
-        <input type="number" id="edit-size" value="24" min="8" max="72" style="width:70px" title="Font size">
-        <select id="edit-pages">
-          <option value="all">All pages</option>
-          <option value="first">First page only</option>
-          <option value="last">Last page only</option>
-        </select>
-        <button class="btn" id="edit-btn" disabled>Add Text & Download</button>
-      </div>
-      <div id="edit-status"></div>
-    </div>
-  </div>
-
-  <!-- INFO -->
-  <div class="panel" id="panel-info">
-    <div class="card">
-      <h2>PDF Info & Extract Text</h2>
-      <div class="dropzone" id="info-drop">
-        <input type="file" id="info-file" accept=".pdf,application/pdf">
-        <p>Drop a PDF to inspect</p>
-      </div>
-      <div id="info-details" style="margin:1rem 0"></div>
-      <div class="preview-area" id="info-preview"></div>
-      <button class="btn" id="info-extract" disabled style="margin-top:0.5rem">Extract All Text</button>
-      <pre id="info-text" style="margin-top:1rem;background:var(--bg);padding:1rem;border-radius:8px;max-height:400px;overflow:auto;white-space:pre-wrap;font-size:0.85rem;display:none"></pre>
-      <div id="info-status"></div>
-    </div>
-  </div>
-</div>
-<div class="footer">
-  PDF Studio runs 100% in your browser. Your files never leave your device.<br>
-  Powered by pdf-lib, pdf.js, mammoth.js & jsPDF<br>
-  Tip: If buttons stay disabled, make sure the file selected successfully (check the file list / info line).
+  <footer class="app-footer">
+    PDF Studio runs 100% in your browser — your files never leave your device.<br>
+    Built with pdf.js, pdf-lib, mammoth.js, jsPDF, html2canvas &amp; fflate.
+  </footer>
 </div>
 
-<script src="pdf-lib.min.js"></script>
-<script src="pdf.min.js"></script>
-<script src="jspdf.umd.min.js"></script>
-<script src="mammoth.browser.min.js"></script>
-<script>
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdf.worker.min.js';
+<div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="false"></div>
+<div id="busy" class="busy" hidden>
+  <div class="busy-card" role="status" aria-live="polite">
+    <div class="busy-row"><div class="spinner" aria-hidden="true"></div><span class="busy-msg">Working…</span></div>
+    <div class="progress indeterminate" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="100"><div></div></div>
+    <div class="busy-sub"></div>
+  </div>
+</div>
+<div id="print-root"></div>
 
-// Tab switching
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
-  });
-});
-
-// Helpers
-function showStatus(elId, msg, type = 'info') {
-  const el = document.getElementById(elId);
-  if (!el) return;
-  el.innerHTML = msg ? `<div class="status ${type}">${msg}</div>` : '';
-}
-function downloadBlob(blob, filename) {
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => {
-    document.body.removeChild(a);
-    URL.revokeObjectURL(a.href);
-  }, 100);
-}
-function isPdf(file) {
-  return file && (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'));
-}
-function parseRanges(str, max) {
-  if (!str || !str.trim()) return Array.from({length: max}, (_, i) => i);
-  const pages = new Set();
-  str.split(',').forEach(part => {
-    part = part.trim();
-    if (!part) return;
-    if (part.includes('-')) {
-      const [a, b] = part.split('-').map(Number);
-      if (!isNaN(a) && !isNaN(b)) {
-        for (let i = a; i <= b; i++) if (i >= 1 && i <= max) pages.add(i - 1);
-      }
-    } else {
-      const n = Number(part);
-      if (!isNaN(n) && n >= 1 && n <= max) pages.add(n - 1);
-    }
-  });
-  return Array.from(pages).sort((a, b) => a - b);
-}
-
-async function renderPreview(fileOrBytes, containerId, maxPages = 1) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  container.innerHTML = '<div style="color:#8b9bb4;padding:2rem">Rendering preview…</div>';
-  try {
-    let data;
-    if (fileOrBytes instanceof File || fileOrBytes instanceof Blob) {
-      data = await fileOrBytes.arrayBuffer();
-    } else {
-      data = fileOrBytes;
-    }
-    const loadingTask = pdfjsLib.getDocument({ data });
-    const pdf = await loadingTask.promise;
-    container.innerHTML = '';
-    const pagesToShow = Math.min(pdf.numPages, maxPages);
-    for (let i = 1; i <= pagesToShow; i++) {
-      const page = await pdf.getPage(i);
-      const viewport = page.getViewport({ scale: 1.2 });
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      canvas.style.margin = '0.5rem';
-      await page.render({ canvasContext: ctx, viewport }).promise;
-      container.appendChild(canvas);
-    }
-    if (pdf.numPages > maxPages) {
-      const more = document.createElement('div');
-      more.style.color = '#8b9bb4';
-      more.style.padding = '0.5rem';
-      more.textContent = `… and ${pdf.numPages - maxPages} more page(s)`;
-      container.appendChild(more);
-    }
-  } catch (err) {
-    container.innerHTML = `<div style="color:#fca5a5;padding:1rem">Preview failed: ${err.message}</div>`;
-  }
-}
-
-// ========== MERGE ==========
-let mergeFiles = [];
-const mergeDrop = document.getElementById('merge-drop');
-const mergeInput = document.getElementById('merge-files');
-const mergeList = document.getElementById('merge-list');
-const mergeBtn = document.getElementById('merge-btn');
-
-function renderMergeList() {
-  mergeList.innerHTML = '';
-  mergeFiles.forEach((f, i) => {
-    const div = document.createElement('div');
-    div.className = 'file-item';
-    div.innerHTML = `<span>${i+1}. ${f.name} (${(f.size/1024).toFixed(1)} KB)</span>
-      <span>
-        <button type="button" data-i="${i}" data-dir="-1">↑</button>
-        <button type="button" data-i="${i}" data-dir="1">↓</button>
-        <button type="button" data-i="${i}" data-remove="1">✕</button>
-      </span>`;
-    mergeList.appendChild(div);
-  });
-  mergeList.querySelectorAll('button').forEach(btn => {
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      const i = +btn.dataset.i;
-      if (btn.dataset.remove) {
-        mergeFiles.splice(i, 1);
-      } else {
-        const dir = +btn.dataset.dir;
-        const j = i + dir;
-        if (j >= 0 && j < mergeFiles.length) {
-          [mergeFiles[i], mergeFiles[j]] = [mergeFiles[j], mergeFiles[i]];
-        }
-      }
-      renderMergeList();
-    };
-  });
-  mergeBtn.disabled = mergeFiles.length < 1;
-}
-mergeInput.addEventListener('change', e => {
-  const files = Array.from(e.target.files).filter(isPdf);
-  if (files.length) {
-    mergeFiles.push(...files);
-    renderMergeList();
-    showStatus('merge-status', `Added ${files.length} PDF(s)`, 'success');
-  } else if (e.target.files.length) {
-    showStatus('merge-status', 'Please select PDF files only', 'error');
-  }
-  e.target.value = '';
-});
-mergeDrop.addEventListener('dragover', e => { e.preventDefault(); mergeDrop.classList.add('dragover'); });
-mergeDrop.addEventListener('dragleave', () => mergeDrop.classList.remove('dragover'));
-mergeDrop.addEventListener('drop', e => {
-  e.preventDefault();
-  mergeDrop.classList.remove('dragover');
-  const files = Array.from(e.dataTransfer.files).filter(isPdf);
-  if (files.length) {
-    mergeFiles.push(...files);
-    renderMergeList();
-    showStatus('merge-status', `Added ${files.length} PDF(s)`, 'success');
-  }
-});
-document.getElementById('merge-clear').onclick = () => { mergeFiles = []; renderMergeList(); showStatus('merge-status','',''); };
-mergeBtn.onclick = async () => {
-  if (!mergeFiles.length) return;
-  showStatus('merge-status', 'Merging...', 'info');
-  try {
-    const merged = await PDFLib.PDFDocument.create();
-    for (const file of mergeFiles) {
-      const bytes = await file.arrayBuffer();
-      const doc = await PDFLib.PDFDocument.load(bytes);
-      const pages = await merged.copyPages(doc, doc.getPageIndices());
-      pages.forEach(p => merged.addPage(p));
-    }
-    const out = await merged.save();
-    downloadBlob(new Blob([out], {type: 'application/pdf'}), 'merged.pdf');
-    showStatus('merge-status', `Successfully merged ${mergeFiles.length} files into merged.pdf`, 'success');
-  } catch (err) {
-    showStatus('merge-status', 'Error: ' + err.message, 'error');
-    console.error(err);
-  }
-};
-
-// ========== SPLIT ==========
-let splitDoc = null, splitFileName = '', splitBytes = null;
-const splitDrop = document.getElementById('split-drop');
-const splitInput = document.getElementById('split-file');
-splitInput.onchange = async e => {
-  const file = e.target.files[0];
-  if (!file || !isPdf(file)) { showStatus('split-status','Please select a PDF','error'); return; }
-  try {
-    splitFileName = file.name.replace(/\.pdf$/i, '');
-    splitBytes = await file.arrayBuffer();
-    splitDoc = await PDFLib.PDFDocument.load(splitBytes);
-    document.getElementById('split-info').textContent = `${file.name} — ${splitDoc.getPageCount()} pages`;
-    document.getElementById('split-btn').disabled = false;
-    showStatus('split-status', 'PDF loaded', 'success');
-    renderPreview(file, 'split-preview', 2);
-  } catch (err) {
-    showStatus('split-status', 'Failed to load PDF: ' + err.message, 'error');
-  }
-};
-splitDrop.addEventListener('dragover', e => { e.preventDefault(); splitDrop.classList.add('dragover'); });
-splitDrop.addEventListener('dragleave', () => splitDrop.classList.remove('dragover'));
-splitDrop.addEventListener('drop', async e => {
-  e.preventDefault();
-  splitDrop.classList.remove('dragover');
-  const file = Array.from(e.dataTransfer.files).find(isPdf);
-  if (file) {
-    splitInput.files = null;
-    // simulate by loading directly
-    const dt = new DataTransfer();
-    dt.items.add(file);
-    splitInput.files = dt.files;
-    splitInput.dispatchEvent(new Event('change'));
-  }
-});
-document.getElementById('split-btn').onclick = async () => {
-  if (!splitDoc) return;
-  const ranges = document.getElementById('split-ranges').value;
-  const indices = parseRanges(ranges, splitDoc.getPageCount());
-  if (!indices.length) { showStatus('split-status', 'No valid pages selected', 'error'); return; }
-  showStatus('split-status', 'Extracting...', 'info');
-  try {
-    const out = await PDFLib.PDFDocument.create();
-    const pages = await out.copyPages(splitDoc, indices);
-    pages.forEach(p => out.addPage(p));
-    const bytes = await out.save();
-    downloadBlob(new Blob([bytes], {type:'application/pdf'}), `${splitFileName}_pages.pdf`);
-    showStatus('split-status', `Extracted ${indices.length} page(s)`, 'success');
-  } catch (err) {
-    showStatus('split-status', 'Error: ' + err.message, 'error');
-  }
-};
-
-// ========== ROTATE ==========
-let rotateDoc = null, rotateName = '';
-const rotateDrop = document.getElementById('rotate-drop');
-const rotateInput = document.getElementById('rotate-file');
-rotateInput.onchange = async e => {
-  const file = e.target.files[0];
-  if (!file || !isPdf(file)) { showStatus('rotate-status','Please select a PDF','error'); return; }
-  try {
-    rotateName = file.name.replace(/\.pdf$/i, '');
-    const bytes = await file.arrayBuffer();
-    rotateDoc = await PDFLib.PDFDocument.load(bytes);
-    document.getElementById('rotate-info').textContent = `${file.name} — ${rotateDoc.getPageCount()} pages`;
-    document.getElementById('rotate-btn').disabled = false;
-    showStatus('rotate-status', 'PDF loaded', 'success');
-    renderPreview(file, 'rotate-preview', 2);
-  } catch (err) {
-    showStatus('rotate-status', 'Failed to load PDF: ' + err.message, 'error');
-  }
-};
-rotateDrop.addEventListener('dragover', e => { e.preventDefault(); rotateDrop.classList.add('dragover'); });
-rotateDrop.addEventListener('dragleave', () => rotateDrop.classList.remove('dragover'));
-rotateDrop.addEventListener('drop', e => {
-  e.preventDefault();
-  rotateDrop.classList.remove('dragover');
-  const file = Array.from(e.dataTransfer.files).find(isPdf);
-  if (file) {
-    const dt = new DataTransfer();
-    dt.items.add(file);
-    rotateInput.files = dt.files;
-    rotateInput.dispatchEvent(new Event('change'));
-  }
-});
-document.getElementById('rotate-btn').onclick = async () => {
-  if (!rotateDoc) return;
-  const pageStr = document.getElementById('rotate-pages').value;
-  const angle = parseInt(document.getElementById('rotate-angle').value);
-  const indices = parseRanges(pageStr, rotateDoc.getPageCount());
-  showStatus('rotate-status', 'Rotating...', 'info');
-  try {
-    const pages = rotateDoc.getPages();
-    indices.forEach(i => {
-      const page = pages[i];
-      const current = page.getRotation().angle;
-      page.setRotation(PDFLib.degrees(current + angle));
-    });
-    const bytes = await rotateDoc.save();
-    downloadBlob(new Blob([bytes], {type:'application/pdf'}), `${rotateName}_rotated.pdf`);
-    showStatus('rotate-status', `Rotated ${indices.length} page(s) by ${angle}°`, 'success');
-  } catch (err) {
-    showStatus('rotate-status', 'Error: ' + err.message, 'error');
-  }
-};
-
-// ========== IMAGES TO PDF ==========
-let imageFiles = [];
-const imagesDrop = document.getElementById('images-drop');
-const imagesInput = document.getElementById('images-files');
-const imagesList = document.getElementById('images-list');
-const imagesBtn = document.getElementById('images-btn');
-function renderImagesList() {
-  imagesList.innerHTML = '';
-  imageFiles.forEach((f, i) => {
-    const div = document.createElement('div');
-    div.className = 'file-item';
-    div.innerHTML = `<span>${i+1}. ${f.name}</span><button type="button" data-i="${i}">✕</button>`;
-    imagesList.appendChild(div);
-  });
-  imagesList.querySelectorAll('button').forEach(btn => {
-    btn.onclick = () => { imageFiles.splice(+btn.dataset.i,1); renderImagesList(); };
-  });
-  imagesBtn.disabled = imageFiles.length === 0;
-}
-imagesInput.onchange = e => {
-  const files = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
-  imageFiles.push(...files);
-  renderImagesList();
-  e.target.value = '';
-};
-imagesDrop.addEventListener('dragover', e => { e.preventDefault(); imagesDrop.classList.add('dragover'); });
-imagesDrop.addEventListener('dragleave', () => imagesDrop.classList.remove('dragover'));
-imagesDrop.addEventListener('drop', e => {
-  e.preventDefault();
-  imagesDrop.classList.remove('dragover');
-  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
-  imageFiles.push(...files);
-  renderImagesList();
-});
-imagesBtn.onclick = async () => {
-  showStatus('images-status', 'Creating PDF...', 'info');
-  try {
-    const pdf = await PDFLib.PDFDocument.create();
-    const pageSize = document.getElementById('images-pagesize').value;
-    for (const file of imageFiles) {
-      const bytes = await file.arrayBuffer();
-      let img;
-      if (file.type === 'image/png') img = await pdf.embedPng(bytes);
-      else img = await pdf.embedJpg(bytes);
-      let page;
-      if (pageSize === 'fit') {
-        page = pdf.addPage([img.width, img.height]);
-      } else {
-        const sizes = { A4: [595.28, 841.89], Letter: [612, 792] };
-        const [w, h] = sizes[pageSize] || sizes.A4;
-        page = pdf.addPage([w, h]);
-      }
-      const { width, height } = page.getSize();
-      const scale = Math.min(width / img.width, height / img.height);
-      const scaledW = img.width * scale;
-      const scaledH = img.height * scale;
-      page.drawImage(img, {
-        x: (width - scaledW) / 2,
-        y: (height - scaledH) / 2,
-        width: scaledW,
-        height: scaledH,
-      });
-    }
-    const out = await pdf.save();
-    downloadBlob(new Blob([out], {type:'application/pdf'}), 'images.pdf');
-    showStatus('images-status', `Created PDF with ${imageFiles.length} page(s)`, 'success');
-  } catch (err) {
-    showStatus('images-status', 'Error: ' + err.message, 'error');
-  }
-};
-
-// ========== DOCX ==========
-let docxHtml = '';
-const docxDrop = document.getElementById('docx-drop');
-const docxInput = document.getElementById('docx-file');
-docxInput.onchange = async e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  showStatus('docx-status', 'Converting DOCX to HTML...', 'info');
-  try {
-    const arrayBuffer = await file.arrayBuffer();
-    const result = await mammoth.convertToHtml({ arrayBuffer });
-    docxHtml = result.value;
-    const preview = document.getElementById('docx-preview');
-    preview.innerHTML = docxHtml;
-    preview.style.display = 'block';
-    document.getElementById('docx-btn').disabled = false;
-    showStatus('docx-status', 'Ready to convert', 'success');
-  } catch (err) {
-    showStatus('docx-status', 'Error reading DOCX: ' + err.message, 'error');
-  }
-};
-docxDrop.addEventListener('dragover', e => { e.preventDefault(); docxDrop.classList.add('dragover'); });
-docxDrop.addEventListener('dragleave', () => docxDrop.classList.remove('dragover'));
-docxDrop.addEventListener('drop', e => {
-  e.preventDefault();
-  docxDrop.classList.remove('dragover');
-  const file = e.dataTransfer.files[0];
-  if (file && file.name.toLowerCase().endsWith('.docx')) {
-    const dt = new DataTransfer();
-    dt.items.add(file);
-    docxInput.files = dt.files;
-    docxInput.dispatchEvent(new Event('change'));
-  }
-});
-document.getElementById('docx-btn').onclick = () => {
-  if (!docxHtml) return;
-  showStatus('docx-status', 'Generating PDF...', 'info');
-  try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.html(document.getElementById('docx-preview'), {
-      callback: function (doc) {
-        doc.save('converted.pdf');
-        showStatus('docx-status', 'PDF downloaded as converted.pdf', 'success');
-      },
-      x: 10,
-      y: 10,
-      width: 190,
-      windowWidth: 800
-    });
-  } catch (err) {
-    showStatus('docx-status', 'Error: ' + err.message, 'error');
-  }
-};
-
-// ========== CREATE FROM TEXT ==========
-document.getElementById('text-btn').onclick = async () => {
-  const text = document.getElementById('text-content').value.trim();
-  const title = document.getElementById('text-title').value.trim() || 'Document';
-  if (!text) { showStatus('text-status', 'Please enter some text', 'error'); return; }
-  showStatus('text-status', 'Creating PDF...', 'info');
-  try {
-    const pdf = await PDFLib.PDFDocument.create();
-    const font = await pdf.embedFont(PDFLib.StandardFonts.Helvetica);
-    const fontSize = 12;
-    const margin = 50;
-    const pageWidth = 612;
-    const pageHeight = 792;
-    const lineHeight = fontSize * 1.4;
-    const maxWidth = pageWidth - margin * 2;
-    let page = pdf.addPage([pageWidth, pageHeight]);
-    let y = pageHeight - margin;
-    page.drawText(title, { x: margin, y: y, size: 18, font, color: PDFLib.rgb(0,0,0) });
-    y -= 30;
-    const words = text.split(/\s+/);
-    let line = '';
-    for (const word of words) {
-      const test = line ? line + ' ' + word : word;
-      const width = font.widthOfTextAtSize(test, fontSize);
-      if (width > maxWidth && line) {
-        page.drawText(line, { x: margin, y, size: fontSize, font });
-        y -= lineHeight;
-        line = word;
-        if (y < margin + lineHeight) {
-          page = pdf.addPage([pageWidth, pageHeight]);
-          y = pageHeight - margin;
-        }
-      } else {
-        line = test;
-      }
-    }
-    if (line) page.drawText(line, { x: margin, y, size: fontSize, font });
-    const bytes = await pdf.save();
-    downloadBlob(new Blob([bytes], {type:'application/pdf'}), title.replace(/\s+/g, '_') + '.pdf');
-    showStatus('text-status', 'PDF created successfully', 'success');
-  } catch (err) {
-    showStatus('text-status', 'Error: ' + err.message, 'error');
-  }
-};
-
-// ========== EDIT / STAMP TEXT ==========
-let editDoc = null, editName = '';
-const editDrop = document.getElementById('edit-drop');
-const editInput = document.getElementById('edit-file');
-editInput.onchange = async e => {
-  const file = e.target.files[0];
-  if (!file || !isPdf(file)) { showStatus('edit-status','Please select a PDF','error'); return; }
-  try {
-    editName = file.name.replace(/\.pdf$/i, '');
-    const bytes = await file.arrayBuffer();
-    editDoc = await PDFLib.PDFDocument.load(bytes);
-    document.getElementById('edit-info').textContent = `${file.name} — ${editDoc.getPageCount()} pages`;
-    document.getElementById('edit-btn').disabled = false;
-    showStatus('edit-status', 'PDF loaded', 'success');
-    renderPreview(file, 'edit-preview', 2);
-  } catch (err) {
-    showStatus('edit-status', 'Failed to load PDF: ' + err.message, 'error');
-  }
-};
-editDrop.addEventListener('dragover', e => { e.preventDefault(); editDrop.classList.add('dragover'); });
-editDrop.addEventListener('dragleave', () => editDrop.classList.remove('dragover'));
-editDrop.addEventListener('drop', e => {
-  e.preventDefault();
-  editDrop.classList.remove('dragover');
-  const file = Array.from(e.dataTransfer.files).find(isPdf);
-  if (file) {
-    const dt = new DataTransfer();
-    dt.items.add(file);
-    editInput.files = dt.files;
-    editInput.dispatchEvent(new Event('change'));
-  }
-});
-document.getElementById('edit-btn').onclick = async () => {
-  if (!editDoc) return;
-  const text = document.getElementById('edit-text').value.trim();
-  if (!text) { showStatus('edit-status', 'Enter text to stamp', 'error'); return; }
-  const size = parseInt(document.getElementById('edit-size').value) || 24;
-  const which = document.getElementById('edit-pages').value;
-  showStatus('edit-status', 'Adding text...', 'info');
-  try {
-    const font = await editDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
-    const pages = editDoc.getPages();
-    let targetIndices = pages.map((_, i) => i);
-    if (which === 'first') targetIndices = [0];
-    if (which === 'last') targetIndices = [pages.length - 1];
-    for (const i of targetIndices) {
-      const page = pages[i];
-      const { width, height } = page.getSize();
-      const textWidth = font.widthOfTextAtSize(text, size);
-      page.drawText(text, {
-        x: (width - textWidth) / 2,
-        y: height / 2,
-        size,
-        font,
-        color: PDFLib.rgb(0.8, 0.1, 0.1),
-        opacity: 0.7,
-        rotate: PDFLib.degrees(-30),
-      });
-    }
-    const bytes = await editDoc.save();
-    downloadBlob(new Blob([bytes], {type:'application/pdf'}), `${editName}_stamped.pdf`);
-    showStatus('edit-status', 'Text added. Downloaded stamped PDF', 'success');
-  } catch (err) {
-    showStatus('edit-status', 'Error: ' + err.message, 'error');
-  }
-};
-
-// ========== INFO ==========
-let infoDocBytes = null;
-const infoDrop = document.getElementById('info-drop');
-const infoInput = document.getElementById('info-file');
-infoInput.onchange = async e => {
-  const file = e.target.files[0];
-  if (!file || !isPdf(file)) { showStatus('info-status','Please select a PDF','error'); return; }
-  try {
-    infoDocBytes = await file.arrayBuffer();
-    const doc = await PDFLib.PDFDocument.load(infoDocBytes);
-    const count = doc.getPageCount();
-    let meta = '';
-    try {
-      const title = doc.getTitle() || '—';
-      const author = doc.getAuthor() || '—';
-      const subject = doc.getSubject() || '—';
-      meta = `<b>Title:</b> ${title}<br><b>Author:</b> ${author}<br><b>Subject:</b> ${subject}<br>`;
-    } catch {}
-    document.getElementById('info-details').innerHTML = `
-      <b>File:</b> ${file.name}<br>
-      <b>Size:</b> ${(file.size/1024).toFixed(1)} KB<br>
-      <b>Pages:</b> ${count}<br>
-      ${meta}
-    `;
-    document.getElementById('info-extract').disabled = false;
-    document.getElementById('info-text').style.display = 'none';
-    showStatus('info-status', 'PDF loaded', 'success');
-    renderPreview(file, 'info-preview', 2);
-  } catch (err) {
-    showStatus('info-status', 'Failed to load PDF: ' + err.message, 'error');
-  }
-};
-infoDrop.addEventListener('dragover', e => { e.preventDefault(); infoDrop.classList.add('dragover'); });
-infoDrop.addEventListener('dragleave', () => infoDrop.classList.remove('dragover'));
-infoDrop.addEventListener('drop', e => {
-  e.preventDefault();
-  infoDrop.classList.remove('dragover');
-  const file = Array.from(e.dataTransfer.files).find(isPdf);
-  if (file) {
-    const dt = new DataTransfer();
-    dt.items.add(file);
-    infoInput.files = dt.files;
-    infoInput.dispatchEvent(new Event('change'));
-  }
-});
-document.getElementById('info-extract').onclick = async () => {
-  if (!infoDocBytes) return;
-  showStatus('info-status', 'Extracting text...', 'info');
-  try {
-    const loadingTask = pdfjsLib.getDocument({ data: infoDocBytes });
-    const pdf = await loadingTask.promise;
-    let fullText = '';
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      const strings = content.items.map(item => item.str);
-      fullText += `--- Page ${i} ---\n` + strings.join(' ') + '\n\n';
-    }
-    const pre = document.getElementById('info-text');
-    pre.textContent = fullText || '(No extractable text — may be a scanned document)';
-    pre.style.display = 'block';
-    showStatus('info-status', `Extracted text from ${pdf.numPages} page(s)`, 'success');
-  } catch (err) {
-    showStatus('info-status', 'Error: ' + err.message, 'error');
-  }
-};
-</script>
+<!-- Vendored libraries (no CDN, no network) -->
+<script src="vendor/pdf-lib.min.js"></script>
+<script src="vendor/pdf.min.js"></script>
+<script src="vendor/fflate.min.js"></script>
+<!-- App core -->
+<script src="js/core/util.js"></script>
+<script src="js/core/ui.js"></script>
+<script src="js/core/engine.js"></script>
+<script src="js/core/sortable.js"></script>
+<script src="js/core/page-grid.js"></script>
+<script src="js/core/kit.js"></script>
+<script src="js/core/stamp.js"></script>
+<script src="js/app.js"></script>
+<!-- Tools (each registers itself; order = order shown) -->
+<script src="js/tools/merge.js"></script>
+<script src="js/tools/split.js"></script>
+<script src="js/tools/rotate.js"></script>
+<script src="js/tools/images-to-pdf.js"></script>
+<script src="js/tools/docx-to-pdf.js"></script>
+<script src="js/tools/text-to-pdf.js"></script>
+<script src="js/tools/watermark.js"></script>
+<script src="js/tools/info.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>
