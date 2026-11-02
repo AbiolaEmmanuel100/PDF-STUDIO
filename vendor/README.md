@@ -1,0 +1,13 @@
+# Vendored libraries
+
+All third-party code is committed here so PDF Studio works offline and never contacts a CDN.
+Each file keeps its original license header.
+
+| File | Library | Version | License | Used for |
+| --- | --- | --- | --- | --- |
+| `pdf.min.js`, `pdf.worker.min.js` | [pdf.js](https://github.com/mozilla/pdf.js) | 3.11.174 | Apache-2.0 | Rendering pages, thumbnails, text extraction |
+| `pdf-lib.min.js` | [pdf-lib](https://github.com/Hopding/pdf-lib) | 1.17.x | MIT | Creating and modifying PDFs |
+| `fflate.min.js` | [fflate](https://github.com/101arrowz/fflate) | 0.8.2 | MIT | Zipping multi-file outputs |
+| `mammoth.browser.min.js` | [mammoth.js](https://github.com/mwilliamson/mammoth.js) | 1.x | BSD-2-Clause | DOCX → HTML (lazy-loaded) |
+| `jspdf.umd.min.js` | [jsPDF](https://github.com/parallax/jsPDF) | 2.5.1 | MIT | HTML → PDF for Word conversion (lazy-loaded) |
+| `html2canvas.min.js` | [html2canvas](https://github.com/niklasvh/html2canvas) | 1.4.1 | MIT | Required by jsPDF's `html()` (lazy-loaded) |
